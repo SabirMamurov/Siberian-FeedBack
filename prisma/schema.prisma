@@ -1,0 +1,90 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+/// Площадка: WB, OZON, Yandex.Market и т.д.
+model Marketplace {
+  id       Int       @id @default(autoincrement())
+  code     String    @unique // "wb" | "ozon" | "ym"
+  name     String                 // "Wildberries" | "Ozon" | ...
+  products Product[]
+  syncs    SyncLog[]
+}
+
+/// Товар, который мы мониторим на конкретной площадке.
+/// externalId — артикул в системе площадки (для WB это nmId).
+/// imtId — для WB это id карточки-родителя, по которому отзывы агрегированы.
+model Product {
+  id            Int      @id @default(autoincrement())
+  marketplaceId Int
+  marketplace   Marketplace @relation(fields: [marketplaceId], references: [id])
+  externalId    String   // nmId (WB), product_id (OZON), ...
+  imtId         String?
+  name          String
+  brand         String?
+  url           String?
+  isActive      Boolean  @default(true)
+  reviews       Review[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // На одной площадке артикул уникален
+  @@unique([marketplaceId, externalId])
+  @@index([isActive])
+}
+
+/// Отзыв с площадки.
+/// externalId — id отзыва на площадке (для WB это поле id).
+model Review {
+  id           Int      @id @default(autoincrement())
+  productId    Int
+  product      Product  @relation(fields: [productId], references: [id])
+  externalId   String   // id отзыва на площадке
+  rating       Int      // 1..5
+  text         String?
+  pros         String?
+  cons         String?
+  authorName   String?
+  authorRegion String?
+  publishedAt  DateTime
+  hasPhoto     Boolean  @default(false)
+  hasVideo     Boolean  @default(false)
+
+  // Ответ продавца, который уже опубликован на площадке
+  sellerReply   String?
+  sellerReplyAt DateTime?
+
+  // Сырой JSON от площадки, на случай если нужны поля которых нет в схеме
+  rawJson String?
+
+  // Внутренние поля
+  fetchedAt        DateTime @default(now())
+  isComplaint      Boolean  @default(false)   // флажок аналитика — взять в работу как рекламацию
+  complaintData    String?                    // JSON с полями вроде {defectType, причины, мероприятия}
+  bitrixCommentId  String?                    // id комментария в задаче Битрикс
+  aiDraftReply     String?                    // черновик ответа от AI, ждёт подтверждения
+  aiReplyStatus    String?                    // null | "draft" | "approved" | "posted" | "rejected"
+
+  // На одном товаре externalId отзыва уникален
+  @@unique([productId, externalId])
+  @@index([publishedAt])
+  @@index([rating])
+  @@index([isComplaint])
+}
+
+/// Журнал синхронизаций — диагностика и наблюдаемость.
+model SyncLog {
+  id              Int       @id @default(autoincrement())
+  marketplaceId   Int
+  marketplace     Marketplace @relation(fields: [marketplaceId], references: [id])
+  startedAt       DateTime  @default(now())
+  finishedAt      DateTime?
+  productsScanned Int       @default(0)
+  reviewsAdded    Int       @default(0)
+  reviewsUpdated  Int       @default(0)
+  error           String?
+}

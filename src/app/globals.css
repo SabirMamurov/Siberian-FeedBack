@@ -1,0 +1,75 @@
+@import "tailwindcss";
+
+@theme {
+  /* surfaces — три уровня высоты для глубины */
+  --color-bg: #0a0d12;
+  --color-elev-1: #11161d;
+  --color-elev-2: #181f28;
+  --color-elev-3: #1f2832;
+
+  /* borders */
+  --color-border: #232c36;
+  --color-border-strong: #2f3a47;
+
+  /* text */
+  --color-fg: #e8edf3;
+  --color-fg-strong: #ffffff;
+  --color-muted: #8a96a3;
+  --color-muted-strong: #6a7682;
+
+  /* brand / actions */
+  --color-accent: #4f9dff;
+  --color-accent-soft: rgba(79, 157, 255, 0.12);
+
+  /* semantic */
+  --color-good: #34c77b;
+  --color-good-soft: rgba(52, 199, 123, 0.12);
+  --color-warn: #f0a93b;
+  --color-warn-soft: rgba(240, 169, 59, 0.12);
+  --color-bad: #ec5b5b;
+  --color-bad-soft: rgba(236, 91, 91, 0.12);
+
+}
+
+/* Цвета по рейтингу — вне @theme, чтобы Tailwind не отбрасывал их (он берёт
+   только --color-*). Используем через var() в inline style и color-mix. */
+:root {
+  --rating-1: #ec5b5b;
+  --rating-2: #ed7c4a;
+  --rating-3: #f0a93b;
+  --rating-4: #9bcc4f;
+  --rating-5: #34c77b;
+}
+
+html,
+body {
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font-family:
+    ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
+    Arial, sans-serif;
+  font-feature-settings: "ss01", "cv11";
+}
+
+/* Небольшая полировка скроллбара в тёмной теме */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 8px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-border-strong);
+}
+
+/* Базовые focus-rings, чтобы навигация с клавиатуры выглядела опрятно */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  border-radius: 6px;
+}

@@ -1,0 +1,35 @@
+# dependencies
+node_modules
+.pnp
+.pnp.*
+
+# build / next
+.next
+out
+build
+dist
+
+# debug / logs
+*.log
+npm-debug.log*
+
+# env
+.env
+.env.local
+.env*.local
+
+# database
+prisma/dev.db
+prisma/dev.db-journal
+*.db
+*.sqlite
+*.sqlite3
+
+# data dumps (out-of-band)
+*.csv
+*.tsv
+
+# misc
+.DS_Store
+*.tsbuildinfo
+next-env.d.ts
